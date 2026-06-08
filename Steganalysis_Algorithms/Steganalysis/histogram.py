@@ -1,18 +1,18 @@
-from cv2 import cv2
+import cv2 as ocv
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-img_post=cv2.imread('./critter.jpg')
-img_post_stego=cv2.imread('./rev9_img.png')
-img_post=cv2.resize(img_post, (800,600))
-img_post_stego=cv2.resize(img_post_stego, (800,600))
+img_post=ocv.imread('./critter.jpg')
+img_post_stego=ocv.imread('./rev9_img.png')
+img_post=ocv.resize(img_post, (800,600))
+img_post_stego=ocv.resize(img_post_stego, (800,600))
 print(img_post.shape) # 600 rows, 800 cols, 3 channels
 
 #converting the img into binary
-img_gray=cv2.cvtColor(img_post, cv2.COLOR_BGR2GRAY)
+img_gray=ocv.cvtColor(img_post, ocv.COLOR_BGR2GRAY)
 
-img_gray_stego=cv2.cvtColor(img_post_stego, cv2.COLOR_BGR2GRAY)
+img_gray_stego=ocv.cvtColor(img_post_stego, ocv.COLOR_BGR2GRAY)
 
 print(img_gray.shape)
 

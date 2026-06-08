@@ -9,17 +9,19 @@ import cmath
 
 
 
-def countHomog(b):
-    nb = len(b)
-    y = 0
-    for i in range(1, nb):
-        y += b[i] * b [i - 1] + (1 - b[i]) * (1 - b[i - 1])
+def countHomog(block):
+    # Whatever logic you have before
+    y = 0# some count
+    nb = len(block)  # number of blocks or reference value
 
+    if nb == 0:
+        return 0  # or float('nan') or raise an exception if this is unexpected
     return y / nb
 
 
 
-img_r = ocv.imread("./ee_pup.jpg", ocv.IMREAD_GRAYSCALE)
+
+img_r = ocv.imread("./pup.jpg", ocv.IMREAD_GRAYSCALE)
 img = img_r.flatten()
 img = [8, 0, 5, 0, 5, 8, 9, 5, 0, 4, 4, 5, 7, 3, 6 , 4]
 
@@ -45,12 +47,20 @@ def ColorCut(x, y, z):
     return a
 
 
-def quadratic_solution(a, b, c):    
-    d = (b**2) - (4 * a * c)
-    sol1 = ((-b - cmath.sqrt(d)) / (2*a))
-    sol2 = ((-b + cmath.sqrt(d)) / (2*a))
+import cmath
+def quadratic_solution(a, b, c):
+    if a == 0:
+        if b == 0:
+            print("Warning: Both a and b are zero, no valid solution.")
+            return None, None
+        else:
+            sol = -c / b
+            return sol, None
+    d = b**2 - 4*a*c
+    sol1 = (-b - cmath.sqrt(d)) / (2*a)
+    sol2 = (-b + cmath.sqrt(d)) / (2*a)
+    return sol1, sol2
 
-    return sol2.real, sol1.real        
 
 
 
@@ -107,9 +117,15 @@ c = D_Beta
 
 print(a, b, c)
 
-betaP, betaM = quadratic_solution(a,b,c)
+betaP, betaM = quadratic_solution(a, b, c)
 
-beta =  min(betaP, betaM)
+if betaP is None and betaM is None:
+    print("No valid quadratic solution; cannot compute beta.")
+    beta = None  # or handle this case as needed
+else:
+    valid_solutions = [sol for sol in (betaP, betaM) if sol is not None]
+    beta = min(valid_solutions)
+
 
 print(beta)
 

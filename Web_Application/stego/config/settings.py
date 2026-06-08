@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+8+m(5tlxn%6gh0sz$^gw#!(xl5pwoq&+^&l1c9eo22i%z83fn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 SHARE_IMAGE_UPLOAD_PATH = os.path.join(BASE_DIR, 'static/userimages/')
 

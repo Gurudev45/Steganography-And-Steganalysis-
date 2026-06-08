@@ -1,0 +1,57 @@
+{% load static %}
+{% load widget_tweaks %}
+
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <script>
+        function toggleFields() {
+            var encryptRadio = document.getElementById('encrypt_radio');
+            var decryptRadio = document.getElementById('decrypt_radio');
+            var messageField = document.getElementById('message_field');
+            var recoveryKeyField = document.getElementById('recovery_key_field');
+
+            if (encryptRadio.checked) {
+                messageField.style.display = 'block';
+                recoveryKeyField.style.display = 'none';
+            } else if (decryptRadio.checked) {
+                messageField.style.display = 'none';
+                recoveryKeyField.style.display = 'block';
+            }
+        }
+    </script>
+</head>
+
+<body onload="toggleFields()">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div id="FileUpload">
+            <div class="wrapper">
+                <div class="upload">
+                    <input type="radio" id="encrypt_radio" name="operation" value="encrypt" checked onchange="toggleFields()">
+                    <label for="encrypt_radio">Encrypt</label>
+                    <input type="radio" id="decrypt_radio" name="operation" value="decrypt" onchange="toggleFields()">
+                    <label for="decrypt_radio">Decrypt</label>
+                </div>
+                <div class="upload">
+                    {% render_field imageform.image %} <br><br>
+                </div>
+                <div class="upload">
+                    {% render_field imageform.algorithm %} <br><br>
+                </div>
+                <div id="message_field" class="upload">
+                    {% render_field imageform.message %} <br><br>
+                </div>
+                <div id="recovery_key_field" class="upload">
+                    {% render_field imageform.recovery_key %} <br><br>
+                </div>
+                <div class="upload">
+                    <input type="submit" value="Submit" id="submit_id">
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+
+</html>

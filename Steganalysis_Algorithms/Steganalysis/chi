@@ -1,0 +1,65 @@
+def calcChiSquare(block, size, dof):
+
+    auxX = [0 for x in range(128)]
+    auxY = [0 for x in range(128)]
+
+    for j in range(0, size):
+        c = block[j]
+        if(c % 2 == 0):
+            auxX[c//2] += 1
+        else:
+            auxY[c//2] += 1
+
+    T = []
+
+    auxZ = []
+    for i in range(0, 128):
+        if(auxX[i] + auxY[i] != 0):
+            T.append(auxX[i])
+            auxZ.append((auxX[i] + auxY[i])/2)
+
+    
+    chi, p = scs.chisquare(T, auxZ)
+
+    return p
+
+
+
+img_r = ocv.imread("./pup.jpg", ocv.IMREAD_GRAYSCALE)
+img = np.ndarray.flatten(img_r)
+
+arr_len = len(img)
+
+
+p_values = []
+for i in range(1, 101, 10):
+    size = int(arr_len * i / 100)
+    block = img[0:size]
+    p_values.append(1 - calcChiSquare(block, size, dof))
+
+print(p_values)
+
+
+
+hitogram.py line 1":
+from cv2 import cv2
+
+pairAnalysis.py line 12:
+def countHomog(b):
+    nb = len(b)
+    y = 0
+    for i in range(1, nb):
+        y += b[i] * b [i - 1] + (1 - b[i]) * (1 - b[i - 1])
+
+    return y / nb
+
+line 50:
+def quadratic_solution(a, b, c):    
+    d = (b**2) - (4 * a * c)
+    sol1 = ((-b - cmath.sqrt(d)) / (2*a))
+    sol2 = ((-b + cmath.sqrt(d)) / (2*a))
+
+    return sol2.real, sol1.real        
+
+line 122:
+beta =  min(betaP, betaM)

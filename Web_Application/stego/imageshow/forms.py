@@ -12,3 +12,9 @@ class ImageDecryptForm(forms.Form):
     recovery_key = forms.IntegerField(max_value = 100000, min_value = 0, required = True)
     algorithm = forms.ChoiceField(choices = algo, required = True)
     image = forms.ImageField(required = True)
+
+class SteganographyForm(forms.Form):
+    message = forms.CharField(required = False, widget = forms.Textarea)
+    recovery_key = forms.IntegerField(max_value = 100000, min_value = 0, required = False)
+    algorithm = forms.ChoiceField(choices = algo, required = True)
+    image = forms.ImageField(required = True)

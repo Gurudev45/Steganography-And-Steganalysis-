@@ -48,42 +48,32 @@ def expected(lst):
 
 
 def calcChiSquare(block, size, dof):
+    auxX = [0] * 128
+    auxY = [0] * 128
 
-    auxX = [0 for x in range(128)]
-    auxY = [0 for x in range(128)]
-
-    for j in range(0, size):
+    for j in range(size):
         c = block[j]
-        if(c % 2 == 0):
-            auxX[c//2] += 1
+        if c % 2 == 0:
+            auxX[c // 2] += 1
         else:
-            auxY[c//2] += 1
+            auxY[c // 2] += 1
 
     T = []
-
     auxZ = []
-    for i in range(0, 128):
-        if(auxX[i] + auxY[i] != 0):
+    for i in range(128):
+        total = auxX[i] + auxY[i]
+        if total != 0:
             T.append(auxX[i])
-            auxZ.append((auxX[i] + auxY[i])/2)
+            auxZ.append(total / 2)
 
-    
-    chi, p = scs.chisquare(T, auxZ)
+    # Adjust expected to match observed sum
+    sum_T = sum(T)
+    sum_Z = sum(auxZ)
 
+    if sum_Z != 0:
+        scaled_auxZ = [z * sum_T / sum_Z for z in auxZ]
+    else:
+        scaled_auxZ = auxZ
+
+    chi, p = scs.chisquare(T, scaled_auxZ)
     return p
-
-
-
-img_r = ocv.imread("./pup.jpg", ocv.IMREAD_GRAYSCALE)
-img = np.ndarray.flatten(img_r)
-
-arr_len = len(img)
-
-
-p_values = []
-for i in range(1, 101, 10):
-    size = int(arr_len * i / 100)
-    block = img[0:size]
-    p_values.append(1 - calcChiSquare(block, size, dof))
-
-print(p_values)

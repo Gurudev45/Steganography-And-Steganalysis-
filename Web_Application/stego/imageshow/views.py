@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from imageshow.forms import ImageEncryptForm, ImageDecryptForm
+from imageshow.forms import SteganographyForm
 from django.http import FileResponse
 from PIL import Image
 
@@ -33,52 +33,41 @@ prefix = {
     3: "ee_"
 }
 
-def encrypt(request):
+def steganography_view(request):
     if request.method == 'POST':
-        form = ImageEncryptForm(request.POST, request.FILES)
-
+        form = SteganographyForm(request.POST, request.FILES)
         if form.is_valid():
+            operation = request.POST.get('operation')
             filename, filepath = handle_uploaded_file(request.FILES['image'])
-
             algo_value = int(form['algorithm'].value())
-            msg_value = form['message'].value()
 
-            call([os.path.join(settings.BASE_DIR, "main"), "-e", algo[algo_value], msg_value, filepath])
-            
-            outfilepath = prefix[algo_value] + filename
+            if operation == 'encrypt':
+                msg_value = form['message'].value()
+                if not msg_value:
+                    form.add_error('message', 'This field is required for encryption.')
+                    return render(request, 'imageshow/steganography.html', {'imageform': form})
 
-            return redirect('/output/' + outfilepath + '/' + str(len(msg_value)))
-        else:
-            form = ImageEncryptForm()
-            return render(request, 'imageshow/index.html', {'imageform': form})       
+                call([os.path.join(settings.BASE_DIR, "main"), "-e", algo[algo_value], msg_value, filepath])
+                outfilepath = prefix[algo_value] + filename
+                return redirect('/output/' + outfilepath + '/' + str(len(msg_value)))
+
+            elif operation == 'decrypt':
+                recovery_key = form['recovery_key'].value()
+                if not recovery_key:
+                    form.add_error('recovery_key', 'This field is required for decryption.')
+                    return render(request, 'imageshow/steganography.html', {'imageform': form})
+
+                outfile = os.path.join(settings.BASE_DIR, "outfile")
+                open(outfile, "w").close()
+                f = open(outfile, 'w')
+                
+                call([os.path.join(settings.BASE_DIR, "main"), "-d", algo[algo_value], recovery_key, filepath], stdout = f)
+                f.close()
+
+                return redirect('/message')
     else:
-        form = ImageEncryptForm()
-        return render(request, 'imageshow/index.html', {'imageform': form})
-
-def decrypt(request):
-    if request.method == 'POST':
-        form = ImageDecryptForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            filename, filepath = handle_uploaded_file(request.FILES['image'])
-
-            algo_value = int(form['algorithm'].value())
-            recovery_key = form['recovery_key'].value()
-
-            outfile = os.path.join(settings.BASE_DIR, "outfile")
-            open(outfile, "w").close()
-            f = open(outfile, 'w')
-            
-            call([os.path.join(settings.BASE_DIR, "main"), "-d", algo[algo_value], recovery_key, filepath], stdout = f)
-            f.close()
-
-            return redirect('/message')
-        else:
-            form = ImageDecryptForm()
-            return render(request, 'imageshow/decrypt.html', {'imageform': form})       
-    else:
-        form = ImageDecryptForm()
-        return render(request, 'imageshow/decrypt.html', {'imageform': form})    
+        form = SteganographyForm()
+    return render(request, 'imageshow/steganography.html', {'imageform': form})
 
 def download(request, name, num):
     print("dasdasdasdasdas")
@@ -86,7 +75,7 @@ def download(request, name, num):
 
 
 def message(request):
-    f = open(os.path.join(settings.BASE_DIR, "outfile"), "r")
+    f = open(os.path.join(settings.BASE_DIR, "outfile"), "r", errors="ignore")
     message = f.read()
     f.close()
     try:
@@ -95,4 +84,3 @@ def message(request):
         m = ""
     open(os.path.join(settings.BASE_DIR, "outfile"), "w").close()
     return render(request, 'imageshow/recovery.html', {'message': m})
-  
